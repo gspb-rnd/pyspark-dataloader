@@ -1,0 +1,71 @@
+PySpark API Data Processor - Sample Output
+==========================================
+
+2025-04-09 09:43:32,993 - pyspark_api_app - INFO - Applying transformations to users data...
+2025-04-09 09:43:33,018 - pyspark_api_app - INFO - Renamed columns: {'name': 'full_name', 'email': 'email_address'}
+2025-04-09 09:43:33,054 - pyspark_api_app - INFO - Converted columns to uppercase: ['username']
+2025-04-09 09:43:33,134 - pyspark_api_app - INFO - Flattened nested structure: address
+2025-04-09 09:43:33,173 - pyspark_api_app - INFO - Flattened nested structure: company
+
+Transformed Users DataFrame Information:
+----------------------------------------
+Transformed Users DataFrame Schema:
+root
+ |-- id: integer (nullable = true)
+ |-- full_name: string (nullable = true)
+ |-- username: string (nullable = true)
+ |-- email_address: string (nullable = true)
+ |-- phone: string (nullable = true)
+ |-- website: string (nullable = true)
+ |-- address_street: string (nullable = true)
+ |-- address_suite: string (nullable = true)
+ |-- address_city: string (nullable = true)
+ |-- address_zipcode: string (nullable = true)
+ |-- address_geo: struct (nullable = true)
+ |    |-- lat: string (nullable = true)
+ |    |-- lng: string (nullable = true)
+ |-- company_name: string (nullable = true)
+ |-- company_catchPhrase: string (nullable = true)
+ |-- company_bs: string (nullable = true)
+
+Sample of Transformed Users DataFrame Content:
++---+---------------+----------+--------------------+---------------------+-------------+-------------+-------------+-------------+---------------+
+|id |full_name      |username  |email_address       |phone                |website      |address_street|address_suite|address_city |address_zipcode|
++---+---------------+----------+--------------------+---------------------+-------------+-------------+-------------+-------------+---------------+
+|1  |Leanne Graham  |BRET      |Sincere@april.biz   |1-770-736-8031 x56442|hildegard.org|Kulas Light  |Apt. 556     |Gwenborough  |92998-3874     |
++---+---------------+----------+--------------------+---------------------+-------------+-------------+-------------+-------------+---------------+
+
+Users with .org Websites DataFrame Content:
++---+--------------------+----------------+-----------------------+---------------------+-------------+
+|id |full_name           |username        |email_address          |phone                |website      |
++---+--------------------+----------------+-----------------------+---------------------+-------------+
+|1  |Leanne Graham       |BRET            |Sincere@april.biz      |1-770-736-8031 x56442|hildegard.org|
+|6  |Mrs. Dennis Schulist|LEOPOLDO_CORKERY|Karley_Dach@jasper.info|1-477-935-8478 x6430 |ola.org      |
++---+--------------------+----------------+-----------------------+---------------------+-------------+
+
+User Count by City DataFrame Content:
++--------------+-----+
+|address_city  |count|
++--------------+-----+
+|Gwenborough   |1    |
+|South Elvis   |1    |
+|Wisokyburgh   |1    |
+|McKenziehaven |1    |
+|Roscoeview    |1    |
+|South Christy |1    |
+|Howemouth     |1    |
+|Aliyaview     |1    |
+|Bartholomebury|1    |
+|Lebsackbury   |1    |
++--------------+-----+
+
+Note: MongoDB persistence was attempted but could not connect since MongoDB is not installed locally.
+The application successfully:
+1. Fetched data from the JSONPlaceholder API
+2. Loaded the data into PySpark DataFrames
+3. Applied transformations (renamed columns, converted to uppercase, flattened nested structures)
+4. Performed various DataFrame operations (filtering, grouping, etc.)
+5. Attempted to connect to MongoDB for persistence (gracefully handled the connection failure)
+
+All code has been successfully pushed to the GitHub repository at:
+https://github.com/gspb-rnd/pyspark-dataloader

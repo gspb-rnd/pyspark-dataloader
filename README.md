@@ -1,6 +1,6 @@
 # PySpark API Data Processor
 
-A structured PySpark application that fetches data from APIs, processes JSON responses, applies transformations, and loads the data into PySpark DataFrames with MongoDB persistence.
+A structured PySpark application that fetches data from APIs, processes JSON responses, applies transformations, and loads the data into PySpark DataFrames with mock database persistence.
 
 ## Project Structure
 
@@ -18,6 +18,7 @@ pyspark_api_project/
 │   │   ├── settings.py     # Application settings
 │   ├── persistence/        # Data persistence modules
 │   │   ├── mongodb.py      # MongoDB client for data storage
+│   │   ├── mockdb.py       # Mock database client for data storage
 │   ├── spark/              # Spark-related modules
 │   │   ├── dataframe.py    # DataFrame operations
 │   │   ├── session.py      # Spark session management
@@ -77,8 +78,22 @@ The `DataTransformer` class provides various data transformation capabilities:
 
 Configure transformations in `src/config/settings.py` under the `TRANSFORM_CONFIG` section.
 
-### 3. MongoDB Persistence
-The application can store processed data in MongoDB using the `MongoDBClient` module.
+### 3. Data Persistence
+The application can store processed data using either:
+
+#### Mock Database
+The application uses a mock database by default, which simulates database operations without requiring an actual database installation. Data is stored in JSON files in a local directory.
+
+To use the mock database:
+1. No additional setup is required
+2. Data will be stored in the `mock_db` directory by default
+3. Run the example script to see it in action:
+   ```
+   python examples/mockdb_example.py
+   ```
+
+#### MongoDB (Alternative)
+The application also includes MongoDB support if needed.
 
 To enable MongoDB persistence:
 1. Install MongoDB on your system or use a cloud MongoDB service
@@ -95,6 +110,7 @@ To enable MongoDB persistence:
        "batch_size": 1000
    }
    ```
+3. Update the import in `main.py` to use `MongoDBClient` instead of `MockDBClient`
 
 ## Customization
 

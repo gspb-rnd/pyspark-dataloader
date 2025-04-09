@@ -9,12 +9,12 @@ from src.spark.session import create_spark_session
 from src.spark.dataframe import json_to_dataframe, display_dataframe_info
 from src.utils.logger import setup_logger
 from src.transform.transformations import DataTransformer
-from src.persistence.mongodb import MongoDBClient
+from src.persistence.mockdb import MockDBClient
 from src.config.settings import API_CONFIG, SPARK_CONFIG, LOG_CONFIG, MONGODB_CONFIG, TRANSFORM_CONFIG
 from src.config.schemas import USERS_SCHEMA, POSTS_SCHEMA, TODOS_SCHEMA
 
 def process_users_data(spark_session: Any, logger: logging.Logger, 
-                      mongodb_client: Optional[MongoDBClient] = None) -> None:
+                      db_client: Optional[MockDBClient] = None) -> None:
     """
     Process users data from the API.
     
@@ -62,21 +62,21 @@ def process_users_data(spark_session: Any, logger: logging.Logger,
     
     display_dataframe_info(df, "Transformed Users DataFrame")
     
-    if mongodb_client:
+    if db_client:
         collection_name = MONGODB_CONFIG["collections"]["users"]
         batch_size = MONGODB_CONFIG["batch_size"]
         
-        logger.info(f"Persisting users data to MongoDB collection: {collection_name}")
-        inserted_count = mongodb_client.insert_dataframe(
+        logger.info(f"Persisting users data to mock database collection: {collection_name}")
+        inserted_count = db_client.insert_dataframe(
             df, 
             collection_name,
             batch_size
         )
         
         if inserted_count > 0:
-            logger.info(f"Successfully persisted {inserted_count} user records to MongoDB")
+            logger.info(f"Successfully persisted {inserted_count} user records to mock database")
         else:
-            logger.warning("Failed to persist user data to MongoDB")
+            logger.warning("Failed to persist user data to mock database")
     
     logger.info("Extracting user contact information...")
     contact_fields = ["id", "full_name" if "name" in transform_config["rename_columns"] else "name", 
@@ -109,32 +109,32 @@ def main() -> None:
     spark.sparkContext.setLogLevel(SPARK_CONFIG["log_level"])
     logger.info("Spark session created successfully")
     
-    mongodb_client = None
+    db_client = None
     try:
-        logger.info("Initializing MongoDB client...")
-        mongodb_client = MongoDBClient(
-            connection_string=MONGODB_CONFIG["connection_string"],
+        logger.info("Initializing mock database client...")
+        db_client = MockDBClient(
+            storage_dir="mock_db",
             database=MONGODB_CONFIG["database"]
         )
         
-        if mongodb_client.connect():
-            logger.info("Successfully connected to MongoDB")
+        if db_client.connect():
+            logger.info("Successfully connected to mock database")
         else:
-            logger.warning("Failed to connect to MongoDB, will proceed without persistence")
-            mongodb_client = None
+            logger.warning("Failed to connect to mock database, will proceed without persistence")
+            db_client = None
     except Exception as e:
-        logger.error(f"Error initializing MongoDB client: {e}")
-        logger.warning("Will proceed without MongoDB persistence")
+        logger.error(f"Error initializing mock database client: {e}")
+        logger.warning("Will proceed without database persistence")
     
     try:
-        process_users_data(spark, logger, mongodb_client)
+        process_users_data(spark, logger, db_client)
         
         
     except Exception as e:
         logger.error(f"Error processing data: {e}")
     finally:
-        if mongodb_client:
-            mongodb_client.close()
+        if db_client:
+            db_client.close()
             
         spark.stop()
         logger.info("Spark session stopped")
